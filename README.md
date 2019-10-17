@@ -1,28 +1,12 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,md
-    text_representation:
-      extension: .md
-      format_name: markdown
-      format_version: '1.1'
-      jupytext_version: 1.2.4
-  kernelspec:
-    display_name: Python 3
-    language: python
-    name: python3
----
-
-<!-- #region {"colab_type": "text", "id": "cUvUJrvm_uZG"} -->
 # Trabalho 1
 ## OCR - Optical Character Recognizer
 
 Aluno: Bruno Flávio Ferreira - 9791330
 
 Na primeira parte do trabalho, foi utilizada a técnica de Transfer Learning, para treinar uma rede neural capaz de reconhecer caracteres. 
-<!-- #endregion -->
 
-```python colab={} colab_type="code" id="Vt0fHJRht9hz"
+
+```python
 from __future__ import absolute_import, division, print_function, unicode_literals
 import matplotlib.pylab as plt
 import tensorflow as tf
@@ -37,11 +21,10 @@ import numpy as np
 
 ```
 
-<!-- #region {"colab_type": "text", "id": "71ED6EzBGSrf"} -->
 Primeiro, carregamos o dataset Chars74K, 75% é carregado como dataset de treinamento, 25% como validação
-<!-- #endregion -->
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 51} colab_type="code" id="yQq6kzY8BnFK" outputId="be24d06f-517b-4d91-c5df-1a0b1d2fc5e7"
+
+```python
 IMAGE_SHAPE = (224, 224)
 dataset_folder = './TrainSet'
 image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1/255, validation_split=0.25)
@@ -49,19 +32,23 @@ image_data = image_generator.flow_from_directory(dataset_folder, target_size=IMA
 image_validation = image_generator.flow_from_directory(dataset_folder  , target_size=IMAGE_SHAPE, subset='validation')
 ```
 
-<!-- #region {"colab_type": "text", "id": "GJg92ltXBZcc"} -->
+    Found 5806 images belonging to 62 classes.
+    Found 1899 images belonging to 62 classes.
+
+
 A Rede que será utilizada para o Transfer Learning é a Inception V3 da Google.
 
 Primeiramente, foi carregado o Inception V3 e executado sobre algumas imagens do dataset para vermos as predições antes de realizarmos a técnica do Transfer Learning
-<!-- #endregion -->
 
-```python colab={} colab_type="code" id="a6N3v6pht9h3"
+
+```python
 classifier_url ="https://tfhub.dev/google/tf2-preview/inception_v3/classification/4" #@param {type:"string"}
 labels_path = tf.keras.utils.get_file('ImageNetLabels.txt','https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt')
 imagenet_labels = np.array(open(labels_path).read().splitlines())
 ```
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 775} colab_type="code" id="cx5QWgmmt9h7" outputId="8aa80a9a-d79a-4ab1-b540-d85b40ab9164"
+
+```python
 classifier = tf.keras.Sequential([
     hub.KerasLayer(classifier_url, input_shape=IMAGE_SHAPE+(3,))
 ])
@@ -88,11 +75,29 @@ _ = plt.suptitle("ImageNet predictions")
 plt.show()
 ```
 
-<!-- #region {"colab_type": "text", "id": "B3cWc3oqDS9d"} -->
-Agora, carregamos uma versão do Inception V3 sem a camada final de predição, para podermos treinar no novo dataset e obtermos a classificação desejada
-<!-- #endregion -->
+    WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/ops/resource_variable_ops.py:1781: calling BaseResourceVariable.__init__ (from tensorflow.python.ops.resource_variable_ops) with constraint is deprecated and will be removed in a future version.
+    Instructions for updating:
+    If using Keras pass *_constraint arguments to layers.
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 238} colab_type="code" id="5CJ1LTI6t9h_" outputId="6d3fb302-81a4-4834-c20a-efc01a581dea"
+
+    WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/ops/resource_variable_ops.py:1781: calling BaseResourceVariable.__init__ (from tensorflow.python.ops.resource_variable_ops) with constraint is deprecated and will be removed in a future version.
+    Instructions for updating:
+    If using Keras pass *_constraint arguments to layers.
+
+
+    Image batch shape:  (32, 224, 224, 3)
+    Label batch shape:  (32, 62)
+    (32, 1001)
+
+
+
+![png](output_6_3.png)
+
+
+Agora, carregamos uma versão do Inception V3 sem a camada final de predição, para podermos treinar no novo dataset e obtermos a classificação desejada
+
+
+```python
 feature_extractor_url = "https://tfhub.dev/google/tf2-preview/inception_v3/feature_vector/4" #@param {type:"string"}
 feature_extractor_layer = hub.KerasLayer(feature_extractor_url,
                                          input_shape=(224,224,3))
@@ -107,11 +112,25 @@ model.summary()
 
 ```
 
-<!-- #region {"colab_type": "text", "id": "SNNR2ad8Fp5d"} -->
-Agora, nós treinamos o modelo com o dataset Chars74K
-<!-- #endregion -->
+    (32, 2048)
+    Model: "sequential_1"
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #   
+    =================================================================
+    keras_layer_1 (KerasLayer)   (None, 2048)              21802784  
+    _________________________________________________________________
+    dense (Dense)                (None, 62)                127038    
+    =================================================================
+    Total params: 21,929,822
+    Trainable params: 127,038
+    Non-trainable params: 21,802,784
+    _________________________________________________________________
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 782} colab_type="code" id="3JXHspabt9iD" outputId="4e1bcb93-000c-44c7-dd3a-e9ea27d7b5c2"
+
+Agora, nós treinamos o modelo com o dataset Chars74K
+
+
+```python
 predictions = model(image_batch)
 model.compile(
   optimizer=tf.keras.optimizers.Adam(),
@@ -139,11 +158,57 @@ history = model.fit_generator(image_data, epochs=15,
 
 ```
 
-<!-- #region {"colab_type": "text", "id": "8cFrC8EvWbcB"} -->
-Com o modelo treinado, podemos visualizar os gráficos de como as medidas de Loss e Accuracy se modificaram com os passos do treinamento
-<!-- #endregion -->
+    Epoch 1/15
+    181/182 [============================>.] - ETA: 0s - loss: 2.5959 - acc: 0.4688Epoch 1/15
+    182/182 [==============================] - 49s 267ms/step - loss: 2.5911 - acc: 0.5312 - val_loss: 2.2123 - val_acc: 0.4381
+    Epoch 2/15
+    181/182 [============================>.] - ETA: 0s - loss: 1.4060 - acc: 0.7500Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 1.4067 - acc: 0.5938 - val_loss: 1.9365 - val_acc: 0.4913
+    Epoch 3/15
+    181/182 [============================>.] - ETA: 0s - loss: 1.0001 - acc: 0.7188Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.9982 - acc: 0.8750 - val_loss: 1.9483 - val_acc: 0.5092
+    Epoch 4/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.7823 - acc: 0.8750Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.7820 - acc: 0.8125 - val_loss: 1.8243 - val_acc: 0.5208
+    Epoch 5/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.6067 - acc: 0.8750Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.6066 - acc: 0.8750 - val_loss: 1.8789 - val_acc: 0.5229
+    Epoch 6/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.4995 - acc: 0.8750Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.4986 - acc: 0.9375 - val_loss: 1.8488 - val_acc: 0.5382
+    Epoch 7/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.4053 - acc: 0.9062Epoch 1/15
+    182/182 [==============================] - 41s 223ms/step - loss: 0.4050 - acc: 0.9688 - val_loss: 1.8393 - val_acc: 0.5371
+    Epoch 8/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.3376 - acc: 0.8438Epoch 1/15
+    182/182 [==============================] - 41s 223ms/step - loss: 0.3373 - acc: 0.9375 - val_loss: 1.9021 - val_acc: 0.5282
+    Epoch 9/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.2800 - acc: 0.8750Epoch 1/15
+    182/182 [==============================] - 41s 223ms/step - loss: 0.2804 - acc: 0.9375 - val_loss: 1.8313 - val_acc: 0.5524
+    Epoch 10/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.2406 - acc: 1.0000Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.2410 - acc: 0.9688 - val_loss: 1.9058 - val_acc: 0.5387
+    Epoch 11/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.2062 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 223ms/step - loss: 0.2061 - acc: 0.9688 - val_loss: 1.8948 - val_acc: 0.5308
+    Epoch 12/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.1793 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.1791 - acc: 1.0000 - val_loss: 1.8999 - val_acc: 0.5461
+    Epoch 13/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.1550 - acc: 1.0000Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.1549 - acc: 1.0000 - val_loss: 1.9392 - val_acc: 0.5366
+    Epoch 14/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.1330 - acc: 1.0000Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.1330 - acc: 1.0000 - val_loss: 1.9393 - val_acc: 0.5498
+    Epoch 15/15
+    181/182 [============================>.] - ETA: 0s - loss: 0.1171 - acc: 1.0000Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.1178 - acc: 0.9688 - val_loss: 1.9435 - val_acc: 0.5461
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 566} colab_type="code" id="zY4nda22WY5F" outputId="7fd25ccd-7ffe-4b6e-e3f2-de9115f40e07"
+
+Com o modelo treinado, podemos visualizar os gráficos de como as medidas de Loss e Accuracy se modificaram com os passos do treinamento
+
+
+```python
 plt.figure()
 plt.ylabel("Loss")
 plt.xlabel("Training Steps")
@@ -158,11 +223,25 @@ plt.plot(batch_stats_callback.batch_acc)
 
 ```
 
-<!-- #region {"colab_type": "text", "id": "AXrjFQhDXq4X"} -->
-Após todos os passos completos, podemos executar a predição sobre as mesmas imagens que foram classificadas pelo ImageNet anteriormente e vermos os resultados:
-<!-- #endregion -->
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 602} colab_type="code" id="LKVjCDFkt9iG" outputId="be150df2-e63d-44cd-f9d9-eda73466393f"
+
+
+    [<matplotlib.lines.Line2D at 0x7f0c771b3f28>]
+
+
+
+
+![png](output_12_1.png)
+
+
+
+![png](output_12_2.png)
+
+
+Após todos os passos completos, podemos executar a predição sobre as mesmas imagens que foram classificadas pelo ImageNet anteriormente e vermos os resultados:
+
+
+```python
 class_names = sorted(image_data.class_indices.items(), key=lambda pair:pair[1])
 class_names = np.array([key.title() for key, value in class_names])
 class_names
@@ -182,11 +261,14 @@ for n in range(30):
 _ = plt.suptitle("Model predictions (green: correct, red: incorrect)")
 ```
 
-<!-- #region {"colab_type": "text", "id": "xbyHRZHvapsb"} -->
-Também, podemos executar a predição em imagens do dataset de validação:
-<!-- #endregion -->
 
-```python colab={"base_uri": "https://localhost:8080/", "height": 636} colab_type="code" id="aSCxD6lNt9iK" outputId="a6fd3e45-1e7b-4a5f-cadc-8836b30f62ec"
+![png](output_14_0.png)
+
+
+Também, podemos executar a predição em imagens do dataset de validação:
+
+
+```python
 for validation_batch, label_batch in image_validation:
   print("Validation batch shape: ", validation_batch.shape)
   print("Label batch shape: ", label_batch.shape)
@@ -209,3 +291,11 @@ _ = plt.suptitle("Model predictions - validation set (green: correct, red: incor
 
 
 ```
+
+    Validation batch shape:  (32, 224, 224, 3)
+    Label batch shape:  (32, 62)
+
+
+
+![png](output_16_1.png)
+
