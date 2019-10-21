@@ -18,7 +18,7 @@ import pandas as pd
 import PIL.Image as Image
 import os
 import numpy as np
-
+import time
 ```
 
 Primeiro, carregamos o dataset Chars74K, 75% é carregado como dataset de treinamento, 25% como validação
@@ -46,6 +46,10 @@ classifier_url ="https://tfhub.dev/google/tf2-preview/inception_v3/classificatio
 labels_path = tf.keras.utils.get_file('ImageNetLabels.txt','https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt')
 imagenet_labels = np.array(open(labels_path).read().splitlines())
 ```
+
+    Downloading data from https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt
+    16384/10484 [==============================================] - 0s 0us/step
+
 
 
 ```python
@@ -94,6 +98,7 @@ plt.show()
 ![png](output_6_3.png)
 
 
+### Treinamento do classificador
 Agora, carregamos uma versão do Inception V3 sem a camada final de predição, para podermos treinar no novo dataset e obtermos a classificação desejada
 
 
@@ -159,50 +164,50 @@ history = model.fit_generator(image_data, epochs=15,
 ```
 
     Epoch 1/15
-    181/182 [============================>.] - ETA: 0s - loss: 2.5959 - acc: 0.4688Epoch 1/15
-    182/182 [==============================] - 49s 267ms/step - loss: 2.5911 - acc: 0.5312 - val_loss: 2.2123 - val_acc: 0.4381
+    181/182 [============================>.] - ETA: 0s - loss: 2.5876 - acc: 0.6250Epoch 1/15
+    182/182 [==============================] - 49s 269ms/step - loss: 2.5887 - acc: 0.4375 - val_loss: 2.2215 - val_acc: 0.4413
     Epoch 2/15
-    181/182 [============================>.] - ETA: 0s - loss: 1.4060 - acc: 0.7500Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 1.4067 - acc: 0.5938 - val_loss: 1.9365 - val_acc: 0.4913
+    181/182 [============================>.] - ETA: 0s - loss: 1.3990 - acc: 0.7188Epoch 1/15
+    182/182 [==============================] - 41s 226ms/step - loss: 1.3976 - acc: 0.6875 - val_loss: 1.9872 - val_acc: 0.4882
     Epoch 3/15
-    181/182 [============================>.] - ETA: 0s - loss: 1.0001 - acc: 0.7188Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.9982 - acc: 0.8750 - val_loss: 1.9483 - val_acc: 0.5092
+    181/182 [============================>.] - ETA: 0s - loss: 0.9981 - acc: 0.6562Epoch 1/15
+    182/182 [==============================] - 41s 226ms/step - loss: 0.9974 - acc: 0.7812 - val_loss: 1.8751 - val_acc: 0.5134
     Epoch 4/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.7823 - acc: 0.8750Epoch 1/15
-    182/182 [==============================] - 41s 225ms/step - loss: 0.7820 - acc: 0.8125 - val_loss: 1.8243 - val_acc: 0.5208
+    181/182 [============================>.] - ETA: 0s - loss: 0.7630 - acc: 0.6875Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.7631 - acc: 0.7812 - val_loss: 1.8670 - val_acc: 0.5108
     Epoch 5/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.6067 - acc: 0.8750Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.6066 - acc: 0.8750 - val_loss: 1.8789 - val_acc: 0.5229
+    181/182 [============================>.] - ETA: 0s - loss: 0.6033 - acc: 0.9375Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.6027 - acc: 0.8438 - val_loss: 1.8338 - val_acc: 0.5182
     Epoch 6/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.4995 - acc: 0.8750Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.4986 - acc: 0.9375 - val_loss: 1.8488 - val_acc: 0.5382
+    181/182 [============================>.] - ETA: 0s - loss: 0.4865 - acc: 0.9062Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.4876 - acc: 0.7812 - val_loss: 1.7936 - val_acc: 0.5340
     Epoch 7/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.4053 - acc: 0.9062Epoch 1/15
-    182/182 [==============================] - 41s 223ms/step - loss: 0.4050 - acc: 0.9688 - val_loss: 1.8393 - val_acc: 0.5371
+    181/182 [============================>.] - ETA: 0s - loss: 0.4005 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.4015 - acc: 0.8125 - val_loss: 1.8447 - val_acc: 0.5313
     Epoch 8/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.3376 - acc: 0.8438Epoch 1/15
-    182/182 [==============================] - 41s 223ms/step - loss: 0.3373 - acc: 0.9375 - val_loss: 1.9021 - val_acc: 0.5282
+    181/182 [============================>.] - ETA: 0s - loss: 0.3400 - acc: 0.9375Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.3402 - acc: 0.9375 - val_loss: 1.8602 - val_acc: 0.5361
     Epoch 9/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.2800 - acc: 0.8750Epoch 1/15
-    182/182 [==============================] - 41s 223ms/step - loss: 0.2804 - acc: 0.9375 - val_loss: 1.8313 - val_acc: 0.5524
+    181/182 [============================>.] - ETA: 0s - loss: 0.2801 - acc: 0.9375Epoch 1/15
+    182/182 [==============================] - 41s 224ms/step - loss: 0.2801 - acc: 0.9062 - val_loss: 1.8797 - val_acc: 0.5355
     Epoch 10/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.2406 - acc: 1.0000Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.2410 - acc: 0.9688 - val_loss: 1.9058 - val_acc: 0.5387
+    181/182 [============================>.] - ETA: 0s - loss: 0.2393 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 226ms/step - loss: 0.2392 - acc: 0.9688 - val_loss: 1.8614 - val_acc: 0.5377
     Epoch 11/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.2062 - acc: 0.9688Epoch 1/15
-    182/182 [==============================] - 41s 223ms/step - loss: 0.2061 - acc: 0.9688 - val_loss: 1.8948 - val_acc: 0.5308
+    181/182 [============================>.] - ETA: 0s - loss: 0.2051 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.2057 - acc: 0.9375 - val_loss: 1.8617 - val_acc: 0.5503
     Epoch 12/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.1793 - acc: 0.9688Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.1791 - acc: 1.0000 - val_loss: 1.8999 - val_acc: 0.5461
+    181/182 [============================>.] - ETA: 0s - loss: 0.1761 - acc: 1.0000Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.1761 - acc: 1.0000 - val_loss: 1.9790 - val_acc: 0.5255
     Epoch 13/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.1550 - acc: 1.0000Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.1549 - acc: 1.0000 - val_loss: 1.9392 - val_acc: 0.5366
+    181/182 [============================>.] - ETA: 0s - loss: 0.1495 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 225ms/step - loss: 0.1500 - acc: 0.9375 - val_loss: 1.9131 - val_acc: 0.5466
     Epoch 14/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.1330 - acc: 1.0000Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.1330 - acc: 1.0000 - val_loss: 1.9393 - val_acc: 0.5498
+    181/182 [============================>.] - ETA: 0s - loss: 0.1331 - acc: 0.9688Epoch 1/15
+    182/182 [==============================] - 41s 226ms/step - loss: 0.1329 - acc: 1.0000 - val_loss: 1.9098 - val_acc: 0.5382
     Epoch 15/15
-    181/182 [============================>.] - ETA: 0s - loss: 0.1171 - acc: 1.0000Epoch 1/15
-    182/182 [==============================] - 41s 224ms/step - loss: 0.1178 - acc: 0.9688 - val_loss: 1.9435 - val_acc: 0.5461
+    181/182 [============================>.] - ETA: 0s - loss: 0.1181 - acc: 1.0000Epoch 1/15
+    182/182 [==============================] - 41s 226ms/step - loss: 0.1183 - acc: 1.0000 - val_loss: 1.9586 - val_acc: 0.5503
 
 
 Com o modelo treinado, podemos visualizar os gráficos de como as medidas de Loss e Accuracy se modificaram com os passos do treinamento
@@ -226,7 +231,7 @@ plt.plot(batch_stats_callback.batch_acc)
 
 
 
-    [<matplotlib.lines.Line2D at 0x7f0c771b3f28>]
+    [<matplotlib.lines.Line2D at 0x7f79610d7668>]
 
 
 
@@ -237,6 +242,8 @@ plt.plot(batch_stats_callback.batch_acc)
 
 ![png](output_12_2.png)
 
+
+### Testando o classificador
 
 Após todos os passos completos, podemos executar a predição sobre as mesmas imagens que foram classificadas pelo ImageNet anteriormente e vermos os resultados:
 
@@ -299,3 +306,16 @@ _ = plt.suptitle("Model predictions - validation set (green: correct, red: incor
 
 ![png](output_16_1.png)
 
+
+### Exportando o modelo
+Por ultimo, precisamos exportar o modelo para podermos utilizarmos posteriormente
+
+
+```python
+t = time.time()
+
+export_path = "./saved_models/{}".format(int(t))
+tf.keras.experimental.export_saved_model(model, export_path)
+
+export_path
+```
